@@ -1,0 +1,8 @@
+package com.rental_db.repositories;
+
+import com.rental_db.entities.PropertyImage;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PropertyImageRepository extends JpaRepository<PropertyImage, Long> {
+}
+
