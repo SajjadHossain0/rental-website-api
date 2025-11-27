@@ -13,10 +13,11 @@ import java.time.LocalDateTime;
 public class PropertyImageService {
 
     private final PropertyImageRepository repo;
-    private PropertyRepository propertyRepo;
+    private final PropertyRepository propertyRepo;
 
-    public PropertyImageService(PropertyImageRepository repo) {
+    public PropertyImageService(PropertyImageRepository repo, PropertyRepository propertyRepo) {
         this.repo = repo;
+        this.propertyRepo = propertyRepo;
     }
 
     public PropertyImage addImage(PropertyImageDTO dto) {
