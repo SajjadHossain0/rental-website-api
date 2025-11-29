@@ -24,28 +24,13 @@
                 </a>
             </li>
             <li>
-                <a th:href="@{/admin/properties/add}" th:classappend="${pageTitle == 'Add Property' ? 'active' : ''}">
-                    <i class="fas fa-plus-circle"></i> Add Property
+                <a th:href="@{/admin/properties}" th:classappend="${pageTitle == 'Properties' ? 'active' : ''}">
+                    <i class="fas fa-list"></i> Properties
                 </a>
             </li>
             <li>
                 <a th:href="@{/admin/property-types}" th:classappend="${pageTitle == 'Property Types' ? 'active' : ''}">
                     <i class="fas fa-tags"></i> Property Types
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="fas fa-list"></i> All Properties
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="fas fa-users"></i> Users
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <i class="fas fa-cog"></i> Settings
                 </a>
             </li>
         </ul>

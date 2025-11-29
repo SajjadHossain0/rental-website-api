@@ -32,5 +32,12 @@ public class PropertyImageService {
 
         return repo.save(img);
     }
+    public java.util.List<PropertyImage> findByPropertyId(Long propertyId) {
+        return repo.findByPropertyId(propertyId);
+    }
+
+    public void delete(Long id) {
+        repo.deleteById(id);
+    }
 }
 

@@ -4,5 +4,6 @@ import com.rental_db.entities.PropertyImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PropertyImageRepository extends JpaRepository<PropertyImage, Long> {
+    java.util.List<PropertyImage> findByPropertyId(Long propertyId);
 }
 
