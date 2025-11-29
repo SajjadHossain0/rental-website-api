@@ -23,6 +23,10 @@ public class PropertyTypeService {
         return repo.save(type);
     }
 
+    public void save(PropertyType type) {
+        repo.save(type);
+    }
+
     public List<PropertyType> getAll() {
         return repo.findAll();
     }
