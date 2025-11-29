@@ -50,7 +50,7 @@ public class PropertyService {
     }
 
     public List<Property> getAll() {
-        return repo.findAll();
+        return repo.findByActiveStatus(1);
     }
 
     public Property update(Long id, PropertyDTO dto) {
@@ -68,13 +68,22 @@ public class PropertyService {
     public void saveProperty(Property property) {
         if (property.getCreatedAt() == null) {
             property.setCreatedAt(LocalDateTime.now());
+            property.setActiveStatus(1);
         }
         property.setUpdatedAt(LocalDateTime.now());
         repo.save(property);
     }
 
     public void delete(Long id) {
-        repo.deleteById(id);
+        Property p = repo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        p.setActiveStatus(0);
+        repo.save(p);
+    }
+
+    public List<Property> searchProperties(Long typeId, String location, Double minPrice, Double maxPrice, String keyword) {
+        return repo.findAll(com.rental_db.specifications.PropertySpecification.filterProperties(
+                typeId, location, minPrice, maxPrice, keyword
+        ));
     }
 }
 

@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+
 @RestController
 @RequestMapping("/api/properties")
+@CrossOrigin(origins = "*")
 public class PropertyController {
 
     private final PropertyService service;
@@ -25,6 +27,25 @@ public class PropertyController {
     @GetMapping
     public List<Property> getAll() {
         return service.getAll();
+    }
+
+    @GetMapping("/search")
+    public List<Property> searchProperties(
+            @RequestParam(required = false) Long typeId,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) String keyword
+    ) {
+        return service.searchProperties(typeId, location, minPrice, maxPrice, keyword);
+    }
+
+    @GetMapping("/{id}")
+    public Property getById(@PathVariable Long id) {
+        return service.getAll().stream()
+                .filter(p -> p.getId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
 
     @PutMapping("/{id}")

@@ -51,10 +51,41 @@ Manage property listings.
 #### Delete Property
 - **URL:** `/properties/{id}`
 - **Method:** `DELETE`
-- **Description:** Delete a property.
+- **Description:** Delete a property (soft delete - sets activeStatus to 0).
 - **Path Parameters:**
     - `id`: ID of the property to delete.
 - **Response:** `200 OK` (Returns "Deleted")
+
+#### Search and Filter Properties
+- **URL:** `/properties/search`
+- **Method:** `GET`
+- **Description:** Search and filter properties using multiple criteria. All parameters are optional and can be combined.
+- **Query Parameters:**
+    - `typeId` (optional): Filter by Property Type ID (e.g., `typeId=1`)
+    - `location` (optional): Search in location or address fields (partial match, case-insensitive)
+    - `minPrice` (optional): Minimum price filter
+    - `maxPrice` (optional): Maximum price filter
+    - `keyword` (optional): Search in title or description (partial match, case-insensitive)
+- **Example Requests:**
+  ```
+  GET /properties/search?location=Dhaka
+  GET /properties/search?minPrice=1000&maxPrice=5000
+  GET /properties/search?typeId=1&location=City Center
+  GET /properties/search?keyword=luxury&minPrice=20000
+  ```
+- **Response:** `200 OK` (Returns filtered list of Property objects)
+- **Notes:**
+    - Only active properties (activeStatus = 1) are returned
+    - All text searches are case-insensitive and support partial matching
+    - Multiple filters are combined with AND logic
+
+#### Get Property by ID
+- **URL:** `/properties/{id}`
+- **Method:** `GET`
+- **Description:** Retrieve a single property by its ID.
+- **Path Parameters:**
+    - `id`: ID of the property to retrieve.
+- **Response:** `200 OK` (Returns Property object) or `null` if not found
 
 ---
 
@@ -179,3 +210,7 @@ Manage property images.
 3.  **Get All Properties**:
     *   GET `http://localhost:8080/api/properties`
     *   Verify the property created in step 2 is listed.
+4.  **Search Properties**:
+    *   GET `http://localhost:8080/api/properties/search?location=City Center&minPrice=20000`
+    *   Verify filtered results are returned.
+

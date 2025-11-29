@@ -43,9 +43,30 @@ public class ContactService {
         c.setImageTempUrls(dto.getImageTempUrls());
 
         c.setStatus("pending");
+        c.setActiveStatus(1);
         c.setCreatedAt(LocalDateTime.now());
 
         return repo.save(c);
+    }
+
+    public java.util.List<Contact> getAll() {
+        return repo.findByActiveStatus(1);
+    }
+
+    public Contact getById(Long id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    public void updateStatus(Long id, String status) {
+        Contact contact = repo.findById(id).orElseThrow(() -> new RuntimeException("Contact not found"));
+        contact.setStatus(status);
+        repo.save(contact);
+    }
+
+    public void delete(Long id) {
+        Contact contact = repo.findById(id).orElseThrow(() -> new RuntimeException("Contact not found"));
+        contact.setActiveStatus(0);
+        repo.save(contact);
     }
 }
 

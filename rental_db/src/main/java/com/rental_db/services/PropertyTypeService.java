@@ -24,7 +24,7 @@ public class PropertyTypeService {
     }
 
     public List<PropertyType> getAll() {
-        return repo.findAll();
+        return repo.findByActiveStatus(1);
     }
 
     public PropertyType update(Long id, PropertyTypeDTO dto) {
@@ -36,9 +36,15 @@ public class PropertyTypeService {
     }
 
     public void delete(Long id) {
-        repo.deleteById(id);
+        PropertyType type = repo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        type.setActiveStatus(0);
+        repo.save(type);
     }
+
     public void save(PropertyType type) {
+        if (type.getActiveStatus() == null) {
+            type.setActiveStatus(1);
+        }
         repo.save(type);
     }
 }

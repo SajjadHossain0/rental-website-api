@@ -34,7 +34,16 @@ public class Contact {
     private String imageTempUrls;
 
     private String status;
+    private Integer activeStatus = 1;
     private LocalDateTime createdAt;
+
+    public Integer getActiveStatus() {
+        return activeStatus;
+    }
+
+    public void setActiveStatus(Integer activeStatus) {
+        this.activeStatus = activeStatus;
+    }
 
     public Contact() {
     }

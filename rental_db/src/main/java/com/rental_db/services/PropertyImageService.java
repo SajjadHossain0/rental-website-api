@@ -33,11 +33,13 @@ public class PropertyImageService {
         return repo.save(img);
     }
     public java.util.List<PropertyImage> findByPropertyId(Long propertyId) {
-        return repo.findByPropertyId(propertyId);
+        return repo.findByPropertyIdAndActiveStatus(propertyId, 1);
     }
 
     public void delete(Long id) {
-        repo.deleteById(id);
+        PropertyImage img = repo.findById(id).orElseThrow(() -> new RuntimeException("Not found"));
+        img.setActiveStatus(0);
+        repo.save(img);
     }
 }
 

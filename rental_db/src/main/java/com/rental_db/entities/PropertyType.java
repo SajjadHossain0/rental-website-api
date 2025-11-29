@@ -13,6 +13,16 @@ public class PropertyType {
     @Column(nullable = false, unique = true)
     private String name;
 
+    private Integer activeStatus = 1;
+
+    public Integer getActiveStatus() {
+        return activeStatus;
+    }
+
+    public void setActiveStatus(Integer activeStatus) {
+        this.activeStatus = activeStatus;
+    }
+
     public Long getId() {
         return id;
     }

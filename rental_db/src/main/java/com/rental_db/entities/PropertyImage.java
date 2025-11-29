@@ -17,7 +17,16 @@ public class PropertyImage {
     private Property property;
 
     private String imageUrl;
+    private Integer activeStatus = 1;
     private LocalDateTime createdAt;
+
+    public Integer getActiveStatus() {
+        return activeStatus;
+    }
+
+    public void setActiveStatus(Integer activeStatus) {
+        this.activeStatus = activeStatus;
+    }
 
     public PropertyImage() {
     }

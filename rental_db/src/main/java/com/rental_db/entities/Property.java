@@ -30,6 +30,7 @@ public class Property {
     private String address;
     private String location;
     private Boolean isAvailable;
+    private Integer activeStatus = 1;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -191,6 +192,14 @@ public class Property {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getActiveStatus() {
+        return activeStatus;
+    }
+
+    public void setActiveStatus(Integer activeStatus) {
+        this.activeStatus = activeStatus;
     }
 }
 

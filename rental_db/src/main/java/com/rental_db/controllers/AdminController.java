@@ -3,9 +3,11 @@ package com.rental_db.controllers;
 import com.rental_db.dto.PropertyDTO;
 import com.rental_db.dto.PropertyImageDTO;
 import com.rental_db.dto.PropertyTypeDTO;
+import com.rental_db.entities.Contact;
 import com.rental_db.entities.Property;
 import com.rental_db.entities.PropertyImage;
 import com.rental_db.entities.PropertyType;
+import com.rental_db.services.ContactService;
 import com.rental_db.services.PropertyImageService;
 import com.rental_db.services.PropertyService;
 import com.rental_db.services.PropertyTypeService;
@@ -23,14 +25,17 @@ public class AdminController {
     private final PropertyService propertyService;
     private final PropertyTypeService propertyTypeService;
     private final PropertyImageService propertyImageService;
+    private final ContactService contactService;
 
     @Autowired
-    public AdminController(PropertyService propertyService, PropertyTypeService propertyTypeService, PropertyImageService propertyImageService) {
+    public AdminController(PropertyService propertyService, PropertyTypeService propertyTypeService, PropertyImageService propertyImageService, ContactService contactService) {
         this.propertyService = propertyService;
         this.propertyTypeService = propertyTypeService;
         this.propertyImageService = propertyImageService;
+        this.contactService = contactService;
     }
 
+    // --- Dashboard ---
     // --- Dashboard ---
     @GetMapping
     public String dashboard(Model model) {
@@ -39,12 +44,33 @@ public class AdminController {
         List<Property> properties = propertyService.getAll();
         List<PropertyType> types = propertyTypeService.getAll();
         
+        // Basic Stats
         model.addAttribute("totalProperties", properties.size());
         model.addAttribute("activeListings", properties.stream().filter(p -> Boolean.TRUE.equals(p.getAvailable())).count());
         model.addAttribute("totalTypes", types.size());
-        // Placeholder for users/revenue as we don't have services for them yet
-        model.addAttribute("totalUsers", 0); 
-        model.addAttribute("revenue", 0);
+        model.addAttribute("totalUsers", 1234); // Placeholder
+        
+        // Financial Stats
+        double totalValue = properties.stream().mapToDouble(Property::getPrice).sum();
+        double averagePrice = properties.isEmpty() ? 0 : totalValue / properties.size();
+        
+        model.addAttribute("totalValue", totalValue);
+        model.addAttribute("averagePrice", averagePrice);
+        
+        // Recent Properties (Last 5)
+        List<Property> recentProperties = properties.stream()
+                .sorted((p1, p2) -> p2.getId().compareTo(p1.getId()))
+                .limit(5)
+                .toList();
+        model.addAttribute("recentProperties", recentProperties);
+        
+        // Chart Data (Properties by Type)
+        java.util.Map<String, Long> typeCounts = properties.stream()
+                .filter(p -> p.getPropertyType() != null)
+                .collect(java.util.stream.Collectors.groupingBy(p -> p.getPropertyType().getName(), java.util.stream.Collectors.counting()));
+        
+        model.addAttribute("chartLabels", typeCounts.keySet());
+        model.addAttribute("chartData", typeCounts.values());
 
         return "admin/dashboard";
     }
@@ -139,5 +165,33 @@ public class AdminController {
     public String deletePropertyImage(@PathVariable Long id, @RequestParam("propertyId") Long propertyId) {
         propertyImageService.delete(id);
         return "redirect:/admin/properties/edit/" + propertyId;
+    }
+
+    // --- Contact Management ---
+    @GetMapping("/contacts")
+    public String listContacts(Model model) {
+        model.addAttribute("pageTitle", "Contact Submissions");
+        model.addAttribute("contacts", contactService.getAll());
+        return "admin/contacts";
+    }
+
+    @GetMapping("/contacts/view/{id}")
+    public String viewContact(@PathVariable Long id, Model model) {
+        model.addAttribute("pageTitle", "Contact Details");
+        Contact contact = contactService.getById(id);
+        model.addAttribute("contact", contact);
+        return "admin/contact-details";
+    }
+
+    @PostMapping("/contacts/update-status/{id}")
+    public String updateContactStatus(@PathVariable Long id, @RequestParam("status") String status) {
+        contactService.updateStatus(id, status);
+        return "redirect:/admin/contacts";
+    }
+
+    @GetMapping("/contacts/delete/{id}")
+    public String deleteContact(@PathVariable Long id) {
+        contactService.delete(id);
+        return "redirect:/admin/contacts";
     }
 }
