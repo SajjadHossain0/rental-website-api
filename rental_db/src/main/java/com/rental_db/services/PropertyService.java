@@ -65,13 +65,13 @@ public class PropertyService {
         return repo.save(p);
     }
 
-    public void saveProperty(Property property) {
+    public Property saveProperty(Property property) {
         if (property.getCreatedAt() == null) {
             property.setCreatedAt(LocalDateTime.now());
             property.setActiveStatus(1);
         }
         property.setUpdatedAt(LocalDateTime.now());
-        repo.save(property);
+        return repo.save(property);
     }
 
     public void delete(Long id) {

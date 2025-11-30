@@ -102,6 +102,34 @@
                     <input type="text" class="form-control" th:field="*{amenities}" placeholder="Comma separated">
                 </div>
 
+                <!-- Image URLs Section -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-images" style="margin-right: 5px;"></i> Property Images (URLs)
+                    </label>
+                    <div id="imageUrlsContainer">
+                        <div class="image-url-input" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <input type="text" name="imageUrls" class="form-control" placeholder="Enter image URL">
+                                <span class="error-message"
+                                    style="color: #ef4444; font-size: 0.875rem; display: none; margin-top: 4px;"></span>
+                            </div>
+                            <button type="button" class="btn" onclick="removeImageUrl(this)"
+                                style="background: #ef4444; color: white; white-space: nowrap;">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn" onclick="addImageUrl()"
+                        style="background: #10b981; color: white; margin-top: 10px;">
+                        <i class="fas fa-plus" style="margin-right: 5px;"></i> Add Another Image URL
+                    </button>
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-top: 10px;">
+                        <i class="fas fa-info-circle"></i> Add image URLs for this property. You can add multiple
+                        images.
+                    </p>
+                </div>
+
                 <div class="text-right">
                     <a th:href="@{/admin/properties}" class="btn"
                         style="background: #e5e7eb; color: #374151; margin-right: 10px;">Cancel</a>
@@ -115,7 +143,7 @@
 
         <!-- Image Management Section (Only visible when editing) -->
         <div class="card" th:if="${property.id != null}">
-            <h3 style="margin-bottom: 20px; font-size: 1.1rem;">Property Images</h3>
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem;">Manage Existing Images</h3>
 
             <!-- Existing Images -->
             <div
@@ -146,6 +174,64 @@
         </div>
 
     </div>
+
+    <script>
+        function addImageUrl() {
+            const container = document.getElementById('imageUrlsContainer');
+            const newInput = document.createElement('div');
+            newInput.className = 'image-url-input';
+            newInput.style.cssText = 'display: flex; gap: 10px; margin-bottom: 10px;';
+            newInput.innerHTML = `
+                <div style="flex: 1;">
+                    <input type="text" name="imageUrls" class="form-control" placeholder="Enter image URL" onblur="validateUrl(this)">
+                    <span class="error-message" style="color: #ef4444; font-size: 0.875rem; display: none; margin-top: 4px;"></span>
+                </div>
+                <button type="button" class="btn" onclick="removeImageUrl(this)" 
+                        style="background: #ef4444; color: white; white-space: nowrap;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(newInput);
+        }
+
+        function removeImageUrl(button) {
+            const container = document.getElementById('imageUrlsContainer');
+            if (container.children.length > 1) {
+                button.closest('.image-url-input').remove();
+            } else {
+                alert('At least one image URL field is required.');
+            }
+        }
+
+        function validateUrl(input) {
+            const errorSpan = input.nextElementSibling;
+            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
+
+            if (input.value.trim() === '') {
+                errorSpan.textContent = '';
+                errorSpan.style.display = 'none';
+                return true;
+            }
+
+            if (!urlPattern.test(input.value.trim())) {
+                errorSpan.textContent = 'Please enter a valid URL';
+                errorSpan.style.display = 'block';
+                return false;
+            } else {
+                errorSpan.textContent = '';
+                errorSpan.style.display = 'none';
+                return true;
+            }
+        }
+
+        // Add validation to initial input field
+        document.addEventListener('DOMContentLoaded', function () {
+            const initialInput = document.querySelector('#imageUrlsContainer input[name="imageUrls"]');
+            if (initialInput) {
+                initialInput.setAttribute('onblur', 'validateUrl(this)');
+            }
+        });
+    </script>
 
 </body>
 

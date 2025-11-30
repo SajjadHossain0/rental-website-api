@@ -36,19 +36,19 @@ public class AdminController {
     }
 
     // --- Dashboard ---
-    // --- Dashboard ---
     @GetMapping
     public String dashboard(Model model) {
         model.addAttribute("pageTitle", "Dashboard");
         
         List<Property> properties = propertyService.getAll();
         List<PropertyType> types = propertyTypeService.getAll();
+        List<Contact> contacts = contactService.getAll();
         
         // Basic Stats
         model.addAttribute("totalProperties", properties.size());
         model.addAttribute("activeListings", properties.stream().filter(p -> Boolean.TRUE.equals(p.getAvailable())).count());
         model.addAttribute("totalTypes", types.size());
-        model.addAttribute("totalUsers", 1234); // Placeholder
+        model.addAttribute("totalContacts", contacts.size());
         
         // Financial Stats
         double totalValue = properties.stream().mapToDouble(Property::getPrice).sum();
@@ -64,13 +64,51 @@ public class AdminController {
                 .toList();
         model.addAttribute("recentProperties", recentProperties);
         
-        // Chart Data (Properties by Type)
+        // Chart 1: Properties by Type
         java.util.Map<String, Long> typeCounts = properties.stream()
                 .filter(p -> p.getPropertyType() != null)
                 .collect(java.util.stream.Collectors.groupingBy(p -> p.getPropertyType().getName(), java.util.stream.Collectors.counting()));
         
-        model.addAttribute("chartLabels", typeCounts.keySet());
-        model.addAttribute("chartData", typeCounts.values());
+        model.addAttribute("typeLabels", typeCounts.keySet());
+        model.addAttribute("typeData", typeCounts.values());
+
+        // Chart 2: Contact Status Distribution
+        long pendingContacts = contacts.stream().filter(c -> "pending".equals(c.getStatus())).count();
+        long approvedContacts = contacts.stream().filter(c -> "approved".equals(c.getStatus())).count();
+        long rejectedContacts = contacts.stream().filter(c -> "rejected".equals(c.getStatus())).count();
+        
+        model.addAttribute("contactStatusLabels", java.util.Arrays.asList("Pending", "Approved", "Rejected"));
+        model.addAttribute("contactStatusData", java.util.Arrays.asList(pendingContacts, approvedContacts, rejectedContacts));
+
+        // Chart 3: Availability Status
+        long availableCount = properties.stream().filter(p -> Boolean.TRUE.equals(p.getAvailable())).count();
+        long rentedCount = properties.size() - availableCount;
+        
+        model.addAttribute("availabilityLabels", java.util.Arrays.asList("Available", "Rented"));
+        model.addAttribute("availabilityData", java.util.Arrays.asList(availableCount, rentedCount));
+
+        // Chart 4: Properties by Location (Top 5)
+        java.util.Map<String, Long> locationCounts = properties.stream()
+                .filter(p -> p.getLocation() != null && !p.getLocation().isEmpty())
+                .collect(java.util.stream.Collectors.groupingBy(Property::getLocation, java.util.stream.Collectors.counting()));
+        
+        java.util.List<java.util.Map.Entry<String, Long>> topLocations = locationCounts.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(5)
+                .toList();
+        
+        model.addAttribute("locationLabels", topLocations.stream().map(java.util.Map.Entry::getKey).toList());
+        model.addAttribute("locationData", topLocations.stream().map(java.util.Map.Entry::getValue).toList());
+
+        // Chart 5: Price Distribution
+        long under1000 = properties.stream().filter(p -> p.getPrice() < 1000).count();
+        long range1000to2000 = properties.stream().filter(p -> p.getPrice() >= 1000 && p.getPrice() < 2000).count();
+        long range2000to3000 = properties.stream().filter(p -> p.getPrice() >= 2000 && p.getPrice() < 3000).count();
+        long range3000to5000 = properties.stream().filter(p -> p.getPrice() >= 3000 && p.getPrice() < 5000).count();
+        long above5000 = properties.stream().filter(p -> p.getPrice() >= 5000).count();
+        
+        model.addAttribute("priceRangeLabels", java.util.Arrays.asList("< $1000", "$1000-$2000", "$2000-$3000", "$3000-$5000", "> $5000"));
+        model.addAttribute("priceRangeData", java.util.Arrays.asList(under1000, range1000to2000, range2000to3000, range3000to5000, above5000));
 
         return "admin/dashboard";
     }
@@ -142,8 +180,22 @@ public class AdminController {
     }
 
     @PostMapping("/properties/save")
-    public String saveProperty(@ModelAttribute Property property) {
-        propertyService.saveProperty(property);
+    public String saveProperty(@ModelAttribute Property property, @RequestParam(required = false) String[] imageUrls) {
+        // Save the property first
+        Property savedProperty = propertyService.saveProperty(property);
+        
+        // Save image URLs if provided
+        if (imageUrls != null && imageUrls.length > 0) {
+            for (String imageUrl : imageUrls) {
+                if (imageUrl != null && !imageUrl.trim().isEmpty()) {
+                    PropertyImageDTO imageDTO = new PropertyImageDTO();
+                    imageDTO.setPropertyId(savedProperty.getId());
+                    imageDTO.setImageUrl(imageUrl.trim());
+                    propertyImageService.addImage(imageDTO);
+                }
+            }
+        }
+        
         return "redirect:/admin/properties";
     }
 
